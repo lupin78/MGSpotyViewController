@@ -10,11 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "MGSpotyViewController/MGSpotyViewController.m"
-            timestampString = "426189252.079243"
+            timestampString = "426175839.965033"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "84"
-            endingLineNumber = "84"
+            startingLineNumber = "86"
+            endingLineNumber = "86"
             landmarkName = "-scrollViewDidScroll:"
             landmarkType = "5">
          </BreakpointContent>
@@ -26,11 +26,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "MGSpotyViewController/MGSpotyViewController.m"
-            timestampString = "426189252.079243"
+            timestampString = "426175513.225772"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "58"
-            endingLineNumber = "58"
+            startingLineNumber = "56"
+            endingLineNumber = "56"
             landmarkName = "-loadView"
             landmarkType = "5">
          </BreakpointContent>

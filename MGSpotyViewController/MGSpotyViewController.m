@@ -10,9 +10,11 @@
 #import "UIImageView+LBBlurredImage.h"
 
 CGFloat const kMGOffsetEffects = 40.0;
+CGFloat const kMGOffsetBlurEffect = 2.0;
 
 @implementation MGSpotyViewController {
     CGPoint _startContentOffset;
+    CGPoint _lastContentOffsetBlurEffect;
     UIImage *_image;
 }
 
@@ -86,7 +88,6 @@ CGFloat const kMGOffsetEffects = 40.0;
         [_mainImageView setFrame:CGRectMake(0.0-diff/2.0, 0.0, _overView.frame.size.width+diff, _overView.frame.size.height+diff)];
         [_overView setFrame:CGRectMake(0.0, 0.0+diff, _overView.frame.size.width, _overView.frame.size.height)];
         
-        
         if(scrollView.contentOffset.y < _startContentOffset.y-kMGOffsetEffects) {
             diff = kMGOffsetEffects;
         }
@@ -98,17 +99,25 @@ CGFloat const kMGOffsetEffects = 40.0;
         __block typeof (_overView) overView = _overView;
         
         dispatch_async(dispatch_get_main_queue(), ^{
-            [_mainImageView setImageToBlur:_image blurRadius:newBlur completionBlock:nil];
+            
+            //Blur effects
+            if(ABS(_lastContentOffsetBlurEffect.y-scrollView.contentOffset.y) >= kMGOffsetBlurEffect) {
+                _lastContentOffsetBlurEffect = scrollView.contentOffset;
+                [_mainImageView setImageToBlur:_image blurRadius:newBlur completionBlock:nil];
+            }
+            
             //Opacity overView
             CGFloat scale = 1.0/kMGOffsetEffects;
             [overView setAlpha:1.0 - diff*scale];
         });
         
-        
     //Else if the user is pushing up
     } else if(scrollView.contentOffset.y <= 0) {
         //TableView effects
         [_tableView setContentInset:UIEdgeInsetsMake(ABS(scrollView.contentOffset.y), 0, 0, 0)];
+    } else if(scrollView.contentOffset.y != 0) {
+        //Safe
+        [_tableView setContentInset:UIEdgeInsetsMake(0, 0, 0, 0)];
     }
 }
 

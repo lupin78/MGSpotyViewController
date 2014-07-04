@@ -50,42 +50,17 @@
 
 #pragma mark - UITableView Delegate & Datasource
 
-- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
-    if(section == 0)
-        return [super tableView:tableView viewForHeaderInSection:section];
-    
-    return nil;
-}
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
-    if(section == 1)
-        return @"My Section";
-    
-    return nil;
+    return @"My Section";
 }
-
-- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
-    if(section == 0)
-        return [super tableView:tableView heightForHeaderInSection:section];
-    
-    if(section == 1)
-        return 20.0;
-    
-    return 0.0;
-}
-
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    NSInteger mySections = 1;
-    
-    return mySections + 1;
+    return 1;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {    
-    if(section == 1)
-        return 20;
-    
-    return 0;
+    return 20;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {

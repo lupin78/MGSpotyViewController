@@ -52,8 +52,8 @@ CGFloat const kMGOffsetEffects = 40.0;
     [_tableView setDataSource:self];
     [view addSubview:_tableView];
     
-    //[_tableView setContentInset:UIEdgeInsetsMake(20.0, 0, 0, 0)];
-    _startContentOffset = _tableView.contentOffset;
+    _startContentOffset = CGPointMake(0, -_overView.bounds.size.height);
+    [_tableView setContentInset:UIEdgeInsetsMake(_overView.bounds.size.height, 0, 0, 0)];
     
     //Set the view
     self.view = view;
@@ -76,35 +76,39 @@ CGFloat const kMGOffsetEffects = 40.0;
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
+    //If the user is pulling down
     if(scrollView.contentOffset.y <= _startContentOffset.y) {
         
         //Image size effects
-        CGFloat absoluteY = ABS(scrollView.contentOffset.y);
+        //CGFloat absoluteY = ABS(scrollView.contentOffset.y);
         CGFloat diff = _startContentOffset.y - scrollView.contentOffset.y;
         
-        [_mainImageView setFrame:CGRectMake(0.0-diff/2.0, 0.0, _overView.frame.size.width+absoluteY, _overView.frame.size.width+absoluteY)];
-        [_overView setFrame:CGRectMake(0.0, 0.0+absoluteY, _overView.frame.size.width, _overView.frame.size.height)];
+        [_mainImageView setFrame:CGRectMake(0.0-diff/2.0, 0.0, _overView.frame.size.width+diff, _overView.frame.size.height+diff)];
+        [_overView setFrame:CGRectMake(0.0, 0.0+diff, _overView.frame.size.width, _overView.frame.size.height)];
         
-        if(scrollView.contentOffset.y <= _startContentOffset.y) {
-            
-            if(scrollView.contentOffset.y < _startContentOffset.y-kMGOffsetEffects) {
-                diff = kMGOffsetEffects;
-            }
-                
-            //Image blur effects
-            CGFloat scale = kLBBlurredImageDefaultBlurRadius/kMGOffsetEffects;
-            CGFloat newBlur = kLBBlurredImageDefaultBlurRadius - diff*scale;
-            
-            __block typeof (_overView) overView = _overView;
-            
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [_mainImageView setImageToBlur:_image blurRadius:newBlur completionBlock:nil];
-                //Opacity overView
-                CGFloat scale = 1.0/kMGOffsetEffects;
-                [overView setAlpha:1.0 - diff*scale];
-            });
-            
+        
+        if(scrollView.contentOffset.y < _startContentOffset.y-kMGOffsetEffects) {
+            diff = kMGOffsetEffects;
         }
+        
+        //Image blur effects
+        CGFloat scale = kLBBlurredImageDefaultBlurRadius/kMGOffsetEffects;
+        CGFloat newBlur = kLBBlurredImageDefaultBlurRadius - diff*scale;
+        
+        __block typeof (_overView) overView = _overView;
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [_mainImageView setImageToBlur:_image blurRadius:newBlur completionBlock:nil];
+            //Opacity overView
+            CGFloat scale = 1.0/kMGOffsetEffects;
+            [overView setAlpha:1.0 - diff*scale];
+        });
+        
+        
+    //Else if the user is pushing up
+    } else if(scrollView.contentOffset.y <= 0) {
+        //TableView effects
+        [_tableView setContentInset:UIEdgeInsetsMake(ABS(scrollView.contentOffset.y), 0, 0, 0)];
     }
 }
 
@@ -113,33 +117,12 @@ CGFloat const kMGOffsetEffects = 40.0;
 
 /* To override */
 
-- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
-    if(section == 0) {
-        UIView *transparentView = [[UIView alloc] initWithFrame:_overView.bounds];
-        [transparentView setBackgroundColor:[UIColor clearColor]];
-        return transparentView;
-    }
-    
-    return nil;
-}
-
-- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
-    if(section == 0)
-        return _overView.frame.size.height;
-
-    return 0.0;
-}
-
-
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return 2;
+    return 1;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    if(section == 1)
-        return 20;
-    
-    return 0;
+    return 20.0;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {

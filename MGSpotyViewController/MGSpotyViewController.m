@@ -42,19 +42,24 @@ static CGFloat const kMGOffsetEffects = 40.0;
     [_mainImageView setImageToBlur:_image blurRadius:kLBBlurredImageDefaultBlurRadius completionBlock:nil];
     [view addSubview:_mainImageView];
     
-    [_tableView setFrame:view.frame];
+	CGRect rectFrame = view.frame;
+	rectFrame.origin.y = 150;
+	rectFrame.size.height -= rectFrame.origin.y;
+	
+    [_tableView setFrame:rectFrame];
     [_tableView setShowsVerticalScrollIndicator:NO];
     [_tableView setBackgroundColor:[UIColor clearColor]];
-    [_tableView setContentInset:UIEdgeInsetsMake(_mainImageView.frame.size.height, 0, 0, 0)];
+    [_tableView setContentInset:UIEdgeInsetsMake(_mainImageView.frame.size.height-_tableView.frame.origin.y, 0, 0, 0)];
     [_tableView setDelegate:self];
     [_tableView setDataSource:self];
     [view addSubview:_tableView];
     
     _startContentOffset = _tableView.contentOffset;
     
-    [_overView setFrame:CGRectMake(0, -_tableView.contentInset.top, _mainImageView.frame.size.width, _mainImageView.frame.size.height)];
+    [_overView setFrame:CGRectMake(0, _tableView.frame.origin.y + ABS(_tableView.contentOffset.y) - 100, 320, 100)];
     [_overView setBackgroundColor:[UIColor clearColor]];
-    [_tableView addSubview:_overView];
+	_overView.clipsToBounds = YES;
+    [view addSubview:_overView];
     
     //Set the view
     self.view = view;
@@ -77,36 +82,39 @@ static CGFloat const kMGOffsetEffects = 40.0;
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
+	if (scrollView.contentOffset.y <= 0) {
+		//Move the overview
+		CGRect overViewRect = _overView.frame;
+		overViewRect.origin.y = _tableView.frame.origin.y + ABS(_tableView.contentOffset.y) - overViewRect.size.height;
+		[_overView setFrame:overViewRect];
+	}
+	
     if (scrollView.contentOffset.y <= _startContentOffset.y) {
         
         //Image size effects
-        CGFloat absoluteY = ABS(scrollView.contentOffset.y);
         CGFloat diff = _startContentOffset.y - scrollView.contentOffset.y;
         
-        [_mainImageView setFrame:CGRectMake(0.0-diff/2.0, 0.0, absoluteY, absoluteY)];
+        [_mainImageView setFrame:CGRectMake(0.0-diff/2.0, 0.0, 320.0+diff, 320.0+diff)];
         
-        
-        if (scrollView.contentOffset.y <= _startContentOffset.y) {
-            
-            if(scrollView.contentOffset.y < _startContentOffset.y-kMGOffsetEffects) {
-                diff = kMGOffsetEffects;
-            }
-                
-            //Image blur effects
-            CGFloat scale = kLBBlurredImageDefaultBlurRadius/kMGOffsetEffects;
-            CGFloat newBlur = kLBBlurredImageDefaultBlurRadius - diff*scale;
-            
-            __block typeof (_overView) overView = _overView;
-            
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [_mainImageView setImageToBlur:_image blurRadius:newBlur completionBlock:^{
-                    //Opacity overView
-                    CGFloat scale = 1.0/kMGOffsetEffects;
-                    [overView setAlpha:1.0 - diff*scale];
-                }];
-            });
-            
-        }
+		
+		if(scrollView.contentOffset.y < _startContentOffset.y-kMGOffsetEffects) {
+			diff = kMGOffsetEffects;
+		}
+		
+		//Image blur effects
+		CGFloat scale = kLBBlurredImageDefaultBlurRadius/kMGOffsetEffects;
+		CGFloat newBlur = kLBBlurredImageDefaultBlurRadius - diff*scale;
+		
+		__block typeof (_overView) overView = _overView;
+		
+		dispatch_async(dispatch_get_main_queue(), ^{
+			[_mainImageView setImageToBlur:_image blurRadius:newBlur completionBlock:^{
+				//Opacity overView
+				CGFloat scale = 1.0/kMGOffsetEffects;
+				[overView setAlpha:1.0 - diff*scale];
+			}];
+		});
+		
     }
 }
 
